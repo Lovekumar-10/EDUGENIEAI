@@ -42,7 +42,7 @@ router.post("/upload", upload.single("noteFile"), async (req, res) => {
       subCategory: subCategory || "",
       tags: tags || "",
       fileUrl: file.fileUrl,
-      fileId: file.fileId, // ✅ changed
+      fileId: file.fileId, 
     });
 
     await newNote.save();

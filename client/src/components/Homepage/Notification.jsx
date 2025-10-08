@@ -16,7 +16,7 @@ const Notification = forwardRef(({ open, message, severity, onClose }, ref) => {
       <Alert
         onClose={onClose}
         severity={severity || "success"}
-        variant="filled" // ✅ make it filled
+        variant="filled" 
         sx={{ width: "100%", fontWeight: "bold", fontSize: "0.9rem" }}
       >
         {message}

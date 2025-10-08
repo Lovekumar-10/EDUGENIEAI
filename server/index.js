@@ -47,7 +47,7 @@ app.use("/api/notes", notesRoute);
 
 
 app.get("/", (req, res) => {
-  res.send("EduGenieAI Summary API running ✅");
+  res.send("EduGenieAI Summary API running ");
 });
 
 //68ccff68d0a0dbe51f712516

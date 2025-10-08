@@ -1,26 +1,3 @@
-// import React from "react";
-// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import PdfUploader from "./components/PdfUploader";
-// import PdfSummaryPage from "./components/PdfSummaryPage";
-
-// function App() {
-//   return (
-//     <Router>
-//       <Routes>
-//         <Route path="/" element={<PdfUploader />} />
-//         <Route path="/summary/:pdfId" element={<PdfSummaryPage />} />
-//       </Routes>
-//     </Router>
-//   );
-// }
-
-// export default App;
-
-
-
-
-
-
 
 import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
