@@ -21,7 +21,7 @@ app.set('trust proxy', 1);
 
 // CORS
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+  origin: process.env.CLIENT_ORIGIN || 'https://edugenieai.vercel.app',
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
   credentials: true,
 }));
