@@ -53,7 +53,7 @@ router.post("/flashcards/:pdfId/:chunkIndex/:userId", async (req, res) => {
     }
 
     const chunkTokens = chunks[index].split(/\s+/).length;
-    const DAILY_LIMIT = 40000;
+    const DAILY_LIMIT = 60000;
     if (userToken.tokensUsed + chunkTokens > DAILY_LIMIT) {
       return res.status(403).json({ 
         error: "Daily free limit exceeded. Please wait for tomorrow!" 
