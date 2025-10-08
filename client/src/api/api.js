@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Create an Axios instance
 const api = axios.create({
-  baseURL: "http://localhost:5000/api/pdf", // your backend PDF route
+  baseURL: "https://edugenieai.onrender.com/api/pdf", // your backend PDF route
   headers: {
     "Content-Type": "application/json",
   },
@@ -37,7 +37,7 @@ export const getFlashcards = (pdfId, chunkIndex, userId, count) => {
 
 export const generateQuiz = ({ topic, customText, difficulty, numQuestions }) => {
   // We'll send this to a new backend route like /api/quiz/generate
-  return axios.post("http://localhost:5000/api/quiz/generate", {
+  return axios.post("https://edugenieai.onrender.com/api/quiz/generate", {
     topic,
     customText,
     difficulty,
@@ -48,9 +48,9 @@ export const generateQuiz = ({ topic, customText, difficulty, numQuestions }) =>
 
 
 
-/* ✅ NEW: Community Notes upload API (separate route) */
+/*  NEW: Community Notes upload API (separate route) */
 const communityApi = axios.create({
-  baseURL: "http://localhost:5000/api/notes", // new backend route
+  baseURL: "https://edugenieai.onrender.com/api/notes", // new backend route
 });
 
 export const uploadCommunityNote = (data) => {
