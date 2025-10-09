@@ -59,6 +59,7 @@ export default function MindMapCreator() {
           }}
         >
           <Tldraw 
+            licenseKey="tldraw-2026-01-17/WyJYUU1YY1FRVCIsWyIqIl0sMTYsIjIwMjYtMDEtMTciXQ.Bcq5u8a2aJzXMZg1Rr3VulW5hY68z3Dbm0KpQub38ur0bwFxxHEtF8G4KwVpZtTSjxkjUeLfQB6JQlqhrwn2ug"
             style={{ width: "100%", height: "100%", backgroundColor: "transparent" }}
             onMount={(app) => {
               tldrawAppRef.current = app;
