@@ -30,16 +30,18 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { materialLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 
+
 // SpeedDial actions
 const actions = [
   { icon: <FileCopyIcon />, name: "Copy" },
-  { icon: <SaveIcon />, name: "Save txt" },
-  { icon: <DownloadIcon />, name: "Download pdf" },
+  { icon: <SaveIcon />, name: "Save" },
+  { icon: <DownloadIcon />, name: "Download" },
 
 ];
 
 export default function SummaryDisplayCard({ pdfId, userId, sx ,choiceType, prompt,}) {
   const [loading, setLoading] = useState(false);
+
   
   const [chunkIndex, setChunkIndex] = useState(0);
   const [totalChunks, setTotalChunks] = useState(0);
@@ -55,7 +57,6 @@ export default function SummaryDisplayCard({ pdfId, userId, sx ,choiceType, prom
   const scrollRef = useRef(null);
 
 
-  
   const [pdfLoading, setPdfLoading] = useState(false); // add this at the top of your component
 
 const handleSavePDF = async () => {
@@ -121,6 +122,7 @@ const handleSavePDF = async () => {
   }
 };
 
+
   // Auto-scroll when new summary content is added
   useEffect(() => {
     if (scrollRef.current) {
@@ -156,76 +158,14 @@ const handleSavePDF = async () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(link.href);
-    handleNotif("Text file is  saved successfully!", "success");
+    handleNotif("Text saved successfully!", "success");
   };
-
-  // Save as PDF (multi-page, Word-style)
-// const handleSavePDF = async () => {
-//   if (!displayedSummary) return;
-
-//   try {
-//     const element = document.getElementById("summary-box");
-
-//     // Clone element to capture full content with clean styles
-//     const clone = element.cloneNode(true);
-//     clone.style.width = "800px";                // fixed width for A4
-//     clone.style.padding = "40px";               // default Word-like margin
-//     clone.style.backgroundColor = "#fff";       // white background
-//     clone.style.color = "#000";                 // text color
-//     clone.style.fontFamily = "Arial, sans-serif"; // readable font
-//     clone.style.fontSize = "12pt";              // normal font size
-//     clone.style.lineHeight = "1.5";             // line spacing
-//     clone.style.maxHeight = "none";
-//     clone.style.overflow = "visible";
-//     clone.style.position = "absolute";
-//     clone.style.top = "-9999px";
-    
-//     // Add spacing between paragraphs
-//     clone.querySelectorAll("p").forEach(p => p.style.marginBottom = "12pt");
-
-//     document.body.appendChild(clone);
-
-//     // Capture as canvas
-//     const canvas = await html2canvas(clone, { scale:1.5 });
-//     const imgData = canvas.toDataURL("image/jpeg",0.8);
-
-
-//     const pdf = new jsPDF("p", "pt", "a4"); // portrait, points, A4
-//     const pdfWidth = pdf.internal.pageSize.getWidth();
-//     const pdfHeight = pdf.internal.pageSize.getHeight();
-//     const margin = 40; // matches padding
-
-//     const imgWidth = pdfWidth - margin * 2;
-//     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-//     let heightLeft = imgHeight;
-//     let position = margin;
-
-//     // First page
-//     pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-//     heightLeft -= pdfHeight - margin * 2;
-
-//     // Remaining pages
-//     while (heightLeft > 0) {
-//       position = heightLeft - imgHeight + margin;
-//       pdf.addPage();
-//       pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-//       heightLeft -= pdfHeight - margin * 2;
-//     }
-
-//     pdf.save("notes.pdf");
-//     document.body.removeChild(clone);
-//     handleNotif("PDF saved successfully!", "success");
-//   } catch (err) {
-//     console.error(err);
-//     handleNotif("Failed to save PDF.", "error");
-//   }
-// };
 
   // SpeedDial action handler
   const handleSpeedDialAction = (name) => {
     if (name === "Copy") handleCopy();
     if (name === "Save") handleSaveTXT();
-    if (name === "Print") handleSavePDF();
+    if (name === "Download") handleSavePDF();
   };
 
 
@@ -322,7 +262,6 @@ const handleSavePDF = async () => {
 
           </Typography>
 
-         
 <SpeedDial
   ariaLabel="Summary actions"
   direction={isBelow660 ? "down" : "left"}
@@ -370,6 +309,7 @@ const handleSavePDF = async () => {
     />
   ))}
 </SpeedDial>
+
         </Box>
 
         {/* Summary / Greeting */}
