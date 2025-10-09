@@ -54,6 +54,73 @@ export default function SummaryDisplayCard({ pdfId, userId, sx ,choiceType, prom
   const isBelow660 = useMediaQuery("(max-width:660px)");
   const scrollRef = useRef(null);
 
+
+  
+  const [pdfLoading, setPdfLoading] = useState(false); // add this at the top of your component
+
+const handleSavePDF = async () => {
+  if (!displayedSummary) return;
+
+  setPdfLoading(true); // start loader
+  try {
+    const element = document.getElementById("summary-box");
+
+    // Clone element to capture full content with clean styles
+    const clone = element.cloneNode(true);
+    clone.style.width = "800px";                 // fixed width for A4
+    clone.style.padding = "40px";                // default Word-like margin
+    clone.style.backgroundColor = "#fff";        // white background
+    clone.style.color = "#000";                  // text color
+    clone.style.fontFamily = "Arial, sans-serif"; // readable font
+    clone.style.fontSize = "12pt";               // normal font size
+    clone.style.lineHeight = "1.5";              // line spacing
+    clone.style.maxHeight = "none";
+    clone.style.overflow = "visible";
+    clone.style.position = "absolute";
+    clone.style.top = "-9999px";
+    
+    // Add spacing between paragraphs
+    clone.querySelectorAll("p").forEach(p => p.style.marginBottom = "12pt");
+
+    document.body.appendChild(clone);
+
+    // Capture as canvas
+    const canvas = await html2canvas(clone, { scale: 1.5 });
+    const imgData = canvas.toDataURL("image/jpeg", 0.8);
+
+    const pdf = new jsPDF("p", "pt", "a4"); // portrait, points, A4
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const margin = 40; // matches padding
+
+    const imgWidth = pdfWidth - margin * 2;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = margin;
+
+    // First page
+    pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+    heightLeft -= pdfHeight - margin * 2;
+
+    // Remaining pages
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight + margin;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight - margin * 2;
+    }
+
+    pdf.save("notes.pdf");
+    document.body.removeChild(clone);
+    handleNotif("PDF saved successfully!", "success");
+  } catch (err) {
+    console.error(err);
+    handleNotif("Failed to save PDF.", "error");
+  } finally {
+    setPdfLoading(false); // stop loader
+  }
+};
+
   // Auto-scroll when new summary content is added
   useEffect(() => {
     if (scrollRef.current) {
@@ -89,118 +156,70 @@ export default function SummaryDisplayCard({ pdfId, userId, sx ,choiceType, prom
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(link.href);
-    handleNotif("TXT saved successfully!", "success");
+    handleNotif("Text file is  saved successfully!", "success");
   };
 
-  // Save as PDF (multi-page)
-  // const handleSavePDF = async () => {
-  //   if (!displayedSummary) return;
-
-  //   try {
-  //     const element = document.getElementById("summary-box");
-
-  //     // Clone element to capture full content
-  //     const clone = element.cloneNode(true);
-  //     clone.style.height = "auto";
-  //     clone.style.maxHeight = "none";
-  //     clone.style.overflow = "visible";
-  //     clone.style.position = "absolute";
-  //     clone.style.top = "-9999px";
-  //     document.body.appendChild(clone);
-
-  //     const canvas = await html2canvas(clone, { scale: 2 });
-  //     const imgData = canvas.toDataURL("image/png");
-
-  //     const pdf = new jsPDF("p", "pt", "a4");
-  //     const pdfWidth = pdf.internal.pageSize.getWidth();
-  //     const pdfHeight = pdf.internal.pageSize.getHeight();
-  //     const margin = 20;
-
-  //     const imgWidth = pdfWidth - margin * 2;
-  //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-  //     let heightLeft = imgHeight;
-  //     let position = margin;
-
-  //     pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-  //     heightLeft -= pdfHeight - margin * 2;
-
-  //     while (heightLeft > 0) {
-  //       position = heightLeft - imgHeight + margin;
-  //       pdf.addPage();
-  //       pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-  //       heightLeft -= pdfHeight - margin * 2;
-  //     }
-
-  //     pdf.save("notes.pdf");
-  //     document.body.removeChild(clone);
-  //     handleNotif("PDF saved successfully!", "success");
-  //   } catch (err) {
-  //     console.error(err);
-  //     handleNotif("Failed to save PDF.", "error");
-  //   }
-  // };
-
   // Save as PDF (multi-page, Word-style)
-const handleSavePDF = async () => {
-  if (!displayedSummary) return;
+// const handleSavePDF = async () => {
+//   if (!displayedSummary) return;
 
-  try {
-    const element = document.getElementById("summary-box");
+//   try {
+//     const element = document.getElementById("summary-box");
 
-    // Clone element to capture full content with clean styles
-    const clone = element.cloneNode(true);
-    clone.style.width = "800px";                // fixed width for A4
-    clone.style.padding = "40px";               // default Word-like margin
-    clone.style.backgroundColor = "#fff";       // white background
-    clone.style.color = "#000";                 // text color
-    clone.style.fontFamily = "Arial, sans-serif"; // readable font
-    clone.style.fontSize = "12pt";              // normal font size
-    clone.style.lineHeight = "1.5";             // line spacing
-    clone.style.maxHeight = "none";
-    clone.style.overflow = "visible";
-    clone.style.position = "absolute";
-    clone.style.top = "-9999px";
+//     // Clone element to capture full content with clean styles
+//     const clone = element.cloneNode(true);
+//     clone.style.width = "800px";                // fixed width for A4
+//     clone.style.padding = "40px";               // default Word-like margin
+//     clone.style.backgroundColor = "#fff";       // white background
+//     clone.style.color = "#000";                 // text color
+//     clone.style.fontFamily = "Arial, sans-serif"; // readable font
+//     clone.style.fontSize = "12pt";              // normal font size
+//     clone.style.lineHeight = "1.5";             // line spacing
+//     clone.style.maxHeight = "none";
+//     clone.style.overflow = "visible";
+//     clone.style.position = "absolute";
+//     clone.style.top = "-9999px";
     
-    // Add spacing between paragraphs
-    clone.querySelectorAll("p").forEach(p => p.style.marginBottom = "12pt");
+//     // Add spacing between paragraphs
+//     clone.querySelectorAll("p").forEach(p => p.style.marginBottom = "12pt");
 
-    document.body.appendChild(clone);
+//     document.body.appendChild(clone);
 
-    // Capture as canvas
-    const canvas = await html2canvas(clone, { scale:1.5 });
-    const imgData = canvas.toDataURL("image/jpeg",0.8);
+//     // Capture as canvas
+//     const canvas = await html2canvas(clone, { scale:1.5 });
+//     const imgData = canvas.toDataURL("image/jpeg",0.8);
 
 
-    const pdf = new jsPDF("p", "pt", "a4"); // portrait, points, A4
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const margin = 40; // matches padding
+//     const pdf = new jsPDF("p", "pt", "a4"); // portrait, points, A4
+//     const pdfWidth = pdf.internal.pageSize.getWidth();
+//     const pdfHeight = pdf.internal.pageSize.getHeight();
+//     const margin = 40; // matches padding
 
-    const imgWidth = pdfWidth - margin * 2;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = margin;
+//     const imgWidth = pdfWidth - margin * 2;
+//     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+//     let heightLeft = imgHeight;
+//     let position = margin;
 
-    // First page
-    pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-    heightLeft -= pdfHeight - margin * 2;
+//     // First page
+//     pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+//     heightLeft -= pdfHeight - margin * 2;
 
-    // Remaining pages
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight + margin;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight - margin * 2;
-    }
+//     // Remaining pages
+//     while (heightLeft > 0) {
+//       position = heightLeft - imgHeight + margin;
+//       pdf.addPage();
+//       pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+//       heightLeft -= pdfHeight - margin * 2;
+//     }
 
-    pdf.save("notes.pdf");
-    document.body.removeChild(clone);
-    handleNotif("PDF saved successfully!", "success");
-  } catch (err) {
-    console.error(err);
-    handleNotif("Failed to save PDF.", "error");
-  }
-};
+//     pdf.save("notes.pdf");
+//     document.body.removeChild(clone);
+//     handleNotif("PDF saved successfully!", "success");
+//   } catch (err) {
+//     console.error(err);
+//     handleNotif("Failed to save PDF.", "error");
+//   }
+// };
 
   // SpeedDial action handler
   const handleSpeedDialAction = (name) => {
@@ -303,38 +322,54 @@ const handleSavePDF = async () => {
 
           </Typography>
 
-          <SpeedDial
-            ariaLabel="Summary actions"
-            direction={isBelow660 ? "down" : "left"}
-            icon={<SpeedDialIcon />}
-            sx={{
-              position: "absolute",
-              top: { xs: 3, sm: 5, md: 1 },
-              right: { xs: -5, sm: 4, md: 10 },
-              "& .MuiSpeedDial-fab": {
-                width: { xs: 35, sm: 50, md: 50 },
-                height: { xs: 35, sm: 50, md: 50 },
-                "& .MuiSpeedDialIcon-icon": { fontSize: { xs: 18, sm: 22, md: 22 } },
-              },
-              "& .MuiSpeedDialAction-fab": {
-                width: { xs: 34, sm: 44, md: 45 },
-                height: { xs: 34, sm: 44, md: 45 },
-                "& svg": { fontSize: { xs: 16, sm: 20, md: 24 } },
-              },
-            }}
-            onMouseEnter={() => setSpeedDialOpen(true)}
-            onMouseLeave={() => setSpeedDialOpen(false)}
-            open={speedDialOpen}
-          >
-            {actions.map((action) => (
-              <SpeedDialAction
-                key={action.name}
-                icon={action.icon}
-                tooltipTitle={action.name}
-                onClick={() => handleSpeedDialAction(action.name)}
-              />
-            ))}
-          </SpeedDial>
+         
+<SpeedDial
+  ariaLabel="Summary actions"
+  direction={isBelow660 ? "down" : "left"}
+  icon={
+    pdfLoading ? (
+      <CircularProgress size={24} color="inherit" /> // Loader on main FAB
+    ) : (
+      <SpeedDialIcon />
+    )
+  }
+  sx={{
+    position: "absolute",
+    top: { xs: 3, sm: 5, md: 1 },
+    right: { xs: -5, sm: 4, md: 10 },
+    "& .MuiSpeedDial-fab": {
+      width: { xs: 35, sm: 50, md: 50 },
+      height: { xs: 35, sm: 50, md: 50 },
+      "& .MuiSpeedDialIcon-icon": { fontSize: { xs: 18, sm: 22, md: 22 } },
+    },
+    "& .MuiSpeedDialAction-fab": {
+      width: { xs: 34, sm: 44, md: 45 },
+      height: { xs: 34, sm: 44, md: 45 },
+      "& svg": { fontSize: { xs: 16, sm: 20, md: 24 } },
+    },
+  }}
+  onMouseEnter={() => setSpeedDialOpen(true)}
+  onMouseLeave={() => setSpeedDialOpen(false)}
+  open={speedDialOpen}
+>
+  {actions.map((action) => (
+    <SpeedDialAction
+      key={action.name}
+      icon={
+        action.name === "Download pdf" && pdfLoading ? (
+          <CircularProgress size={20} color="inherit" />
+        ) : (
+          action.icon
+        )
+      }
+      tooltipTitle={action.name}
+      onClick={() => handleSpeedDialAction(action.name)}
+      FabProps={{
+        disabled: pdfLoading, // disable while PDF is generating
+      }}
+    />
+  ))}
+</SpeedDial>
         </Box>
 
         {/* Summary / Greeting */}
