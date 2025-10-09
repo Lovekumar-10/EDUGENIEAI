@@ -1,5 +1,6 @@
 
 
+
 import React, { useState } from "react";
 import {
   Box,
@@ -10,6 +11,7 @@ import {
   CardActions,
   useTheme,
   useMediaQuery,
+  CircularProgress,
 } from "@mui/material";
 import { uploadPdf } from "../../api/api";
 import UploadIcon from "@mui/icons-material/Upload";
@@ -30,14 +32,13 @@ export default function FileUploader() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [error, setError] = useState("");
   const [pdfId, setPdfId] = useState(null);
-
   const [showChoice, setShowChoice] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [choices, setChoices] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const userId = "user_123";
 
-  // Handle PDF upload
   const handleFileChange = (event) => {
     setError("");
     if (event.target.files && event.target.files[0]) {
@@ -51,10 +52,9 @@ export default function FileUploader() {
     }
   };
 
-  // After clicking continue → upload PDF → show choice step
   const handleContinue = async () => {
     if (!uploadedFile) return;
-
+    setLoading(true);
     try {
       const res = await uploadPdf(uploadedFile);
       setPdfId(res.data.pdfId);
@@ -64,6 +64,8 @@ export default function FileUploader() {
     } catch (err) {
       console.error("Upload failed:", err);
       setError("Failed to upload file. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,7 +73,6 @@ export default function FileUploader() {
     alert("Edit summary clicked");
   };
 
-  // New function — reset for new file upload
   const handleNewUpload = () => {
     setUploadedFile(null);
     setPdfId(null);
@@ -93,6 +94,7 @@ export default function FileUploader() {
             px: 2,
             py: 4,
             justifyContent: "center",
+            position: "relative",
           }}
         >
           <Card
@@ -113,100 +115,98 @@ export default function FileUploader() {
                 Your Learning Path
               </Typography>
 
-              <Box
-                sx={{
-                  borderRadius: 3,
-                  height: 150,
-                  px: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  textAlign: "center",
-                  color: "#6a11cb",
-                  bgcolor: uploadedFile ? "#f0e5ff" : "transparent",
-                  border: "2px dashed #ccc",
-                  overflow: "hidden",
-                }}
-              >
-                {uploadedFile ? (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <PictureAsPdfIcon sx={{ color: "#E91E63", fontSize: 32 }} />
-                    <Typography   sx={{ fontSize: {  xs: "1rem",md: "1.5rem" }, }}fontWeight={700} noWrap>
-                      {uploadedFile.name}
-                    </Typography>
-                    <Typography  sx={{ fontSize: { xs: "0.9rem",md: "1.1rem" }, }}  color="text.secondary" noWrap>
-                      {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-                    </Typography>
-                  </Box>
-                ) : (
-                  <>
+              {/* Entire area clickable */}
+              <label style={{ width: "100%", cursor: "pointer" }}>
+                <input
+                  type="file"
+                  hidden
+                  onChange={handleFileChange}
+                  accept="application/pdf"
+                />
+
+                <Box
+                  sx={{
+                    borderRadius: 3,
+                    height: 150,
+                    px: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    textAlign: "center",
+                    color: "#6a11cb",
+                    bgcolor: uploadedFile ? "#f0e5ff" : "transparent",
+                    border: "2px dashed #ccc",
+                    overflow: "hidden",
+                  }}
+                >
+                  {uploadedFile ? (
                     <Box
                       sx={{
-                        bgcolor: "#d1c4e9",
-                        borderRadius: "50%",
-                        width: 56,
-                        height: 40,
-                        mb: 1.5,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: 32,
-                        color: "#4b0082",
-                        fontWeight: "bold",
+                        gap: 1,
                       }}
                     >
-                      <DescriptionIcon fontSize="inherit" />
+                      <PictureAsPdfIcon sx={{ color: "#E91E63", fontSize: 32 }} />
+                      <Typography
+                        sx={{ fontSize: { xs: "1rem", md: "1.5rem" } }}
+                        fontWeight={700}
+                        noWrap
+                      >
+                        {uploadedFile.name}
+                      </Typography>
+                      <Typography
+                        sx={{ fontSize: { xs: "0.9rem", md: "1.1rem" } }}
+                        color="text.secondary"
+                        noWrap
+                      >
+                        {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                      </Typography>
                     </Box>
-                    <Typography variant="subtitle1" fontWeight={700} mb={0.5}>
-                      No files uploaded yet
+                  ) : (
+                    <>
+                      <Box
+                        sx={{
+                          bgcolor: "#d1c4e9",
+                          borderRadius: "50%",
+                          width: 56,
+                          height: 40,
+                          mb: 1.5,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 32,
+                          color: "#002182ff",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        <DescriptionIcon fontSize="inherit" />
+                      </Box>
+                      <Typography variant="subtitle1" fontWeight={700} mb={0.5}>
+                        No files uploaded yet
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        maxWidth={220}
+                      >
+                        Upload your PDF study material to get started
+                      </Typography>
+                    </>
+                  )}
+                  {error && (
+                    <Typography variant="caption" color="error" mt={1}>
+                      {error}
                     </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      maxWidth={220}
-                    >
-                      Upload your PDF study material to get started
-                    </Typography>
-                  </>
-                )}
-                {error && (
-                  <Typography variant="caption" color="error" mt={1}>
-                    {error}
-                  </Typography>
-                )}
-              </Box>
+                  )}
+                </Box>
+              </label>
             </CardContent>
 
             <CardActions sx={{ justifyContent: "flex-end", pr: 3, pb: 2 }}>
-              {!uploadedFile ? (
-                <Button
-                  variant="contained"
-                  component="label"
-                  startIcon={<UploadIcon />}
-                  sx={{
-                    borderRadius: 3,
-                    fontWeight: "bold",
-                    px: 3,
-                    textTransform: "none",
-                  }}
-                >
-                  Upload File
-                  <input
-                    type="file"
-                    hidden
-                    onChange={handleFileChange}
-                    accept="application/pdf"
-                  />
-                </Button>
-              ) : (
+              {uploadedFile ? (
                 <Button
                   variant="contained"
                   color="primary"
@@ -217,11 +217,53 @@ export default function FileUploader() {
                     textTransform: "none",
                   }}
                   onClick={handleContinue}
+                  disabled={loading}
                 >
                   Continue
                 </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  component="label"
+                  startIcon={<UploadIcon />}
+                  sx={{
+                    borderRadius: 3,
+                    fontWeight: "bold",
+                    px: 3,
+                    textTransform: "none",
+                  }}
+                  disabled={loading}
+                >
+                  Upload File
+                  <input type="file" hidden onChange={handleFileChange} accept="application/pdf" />
+                </Button>
               )}
             </CardActions>
+
+            {/* Loader Overlay */}
+            {loading && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  bgcolor: "rgba(255,255,255,0.7)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 1000,
+                  borderRadius: 3,
+                }}
+              >
+                <CircularProgress />
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  Uploading... Please wait
+                </Typography>
+              </Box>
+            )}
           </Card>
         </Box>
       )}
@@ -250,8 +292,7 @@ export default function FileUploader() {
             gap: 3,
           }}
         >
-          {choices.choiceType === "summary" ||
-          choices.choiceType === "notes" ? (
+          {(choices.choiceType === "summary" || choices.choiceType === "notes") && (
             <SummaryDisplayCard
               pdfId={pdfId}
               userId={userId}
@@ -260,18 +301,17 @@ export default function FileUploader() {
               summary={""}
               onEdit={handleEditSummary}
             />
-          ) : null}
+          )}
 
-          {choices.choiceType === "flashcards" ? (
+          {choices.choiceType === "flashcards" && (
             <FlashcardDisplay
               pdfId={pdfId}
               userId={userId}
               choiceType={choices.choiceType}
               count={choices.count}
             />
-          ) : null}
+          )}
 
-         
           <Button
             variant="outlined"
             color="secondary"
